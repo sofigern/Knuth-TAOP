@@ -1,0 +1,119 @@
+* MATRIX 
+* H,B,F Notation doesn't work in my VM, that's only the reason it is not used.
+MATRIX	EQU	1008
+	ORIG 	MATRIX+1
+*	LINE 1
+	CON	0
+	CON     0
+        CON     0
+        CON     0
+        CON     0
+        CON     0
+        CON     0
+        CON     2
+*       LINE 2
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     2
+        CON     1
+*       LINE 3
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     3
+        CON     1
+        CON     1
+*       LINE 4
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     4
+        CON     1
+        CON     1
+        CON     1
+*       LINE 5
+        CON     1
+        CON     1
+        CON     1
+        CON     5
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+*       LINE 6
+        CON     1
+        CON     1
+        CON     6
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+*       LINE 7
+        CON     1
+        CON     7
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+*       LINE 8
+        CON     8
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+*       LINE 9
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+        CON     1
+	ORIG	1100
+CMAX	EQU	1000
+START	ENT1	9		Set column to 9
+NEXTC	DEC1	1		Iterate over columns 8->1
+	J1Z	FMM		When everything is done validate minmax
+	ENT2	64,1		Prepare the real address to use A[9,i]
+STRX	LDX	MATRIX,2	Store current value to X
+NEXTR	DEC2	8		Go to next value A[j-1, i]
+	J2NP	STRMAX		If j == 0 try to store max value
+	CMPX	MATRIX,2	Compare current value and max in X 
+	JL	STRX		If current greater store it to X
+	JMP	NEXTR		Otherwise take the next j
+STRMAX	ENT2	-8,1		First time we store max anyway
+	J2Z	*+3		
+	CMPX	CMAX		Compare curent cmax with previous
+	JGE	NEXTC		We care only for min max A[*, c]
+	STX	CMAX		Rewrite CMAX if new max is smaller
+	JMP	NEXTC		Go to next column
+FMM	ENT2	72		Set address after the last row A[10,1]
+NEXTR2	ENT3	8		Iterate over columns 8->1
+	J2Z	NO		Return 0 if no min max
+STRX2	LDX	MATRIX,2	Store curent value to X
+	ENT1	MATRIX,2		Store curent address to r1
+NEXTC2	DEC2	1		
+	DEC3	1
+        J3Z     CHMM            If row is complete check the min max
+	CMPX	MATRIX,2	If current value smaller than X
+	JG	STRX2		Then save it
+	JMP	NEXTC2		Try next value
+CHMM	CMPX	CMAX		Check if corrent min == min max
+	JE	FIN		If yes just stop
+	JMP	NEXTR2		Otherwise try the next row
+NO	ENT1	0		Return 0 
+FIN	END	START	
